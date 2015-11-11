@@ -22,23 +22,23 @@ public class SimpleSquaredFuncMinimum {
 	private static final String OUTPUT_NAME = "SQUARED";
 	private static final String OUT_FILE_NAME = "/tmp/ga.out.txt";
 	private static final int POOL_SIZE = 20;
-	private static final int GENERATION_COUNT = 30;
+	private static final int GENERATION_COUNT_SLOW = 50;
+	private static final int GENERATION_COUNT_FAST = 200;
 	private static final double CROSS_OVER_PROBABILITY = 0.7;
 	private static final double SELECTION_PRESSURE = 0.4;
 	private static final double MUTATION_PROBABILITY = 0.005;
 	private static final int BIT_COUNT = 48;
-	public SimpleSquaredFuncMinimum() {
-	}
-	
-	public static void main(String[] args) {
+	public SimpleSquaredFuncMinimum(boolean simulateLongTask) {
 		Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction = new Function<Map<Parameter,Double>, Map<String,Double>>() {
 			@Override
 			public Map<String, Double> apply(Map<Parameter, Double> params) {
-				try {
-					// Test parallel execution of long running jobs
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if(simulateLongTask){
+					try {
+						// Test parallel execution of long running jobs
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 				Double value = params.entrySet().iterator().next().getValue();
 				return Collections.singletonMap(OUTPUT_NAME, Math.pow(value, 2));
@@ -53,7 +53,7 @@ public class SimpleSquaredFuncMinimum {
 		List<Objective> objectives = Arrays.asList(obj);
 		final GeneticAlgorithm ga = new GeneticAlgorithm(
 				POOL_SIZE, 
-				GENERATION_COUNT,
+				simulateLongTask ? GENERATION_COUNT_SLOW : GENERATION_COUNT_FAST,
 				g -> {},
 				evaluationFunction,
 				new SimpleTournamentSelection(objectives, SELECTION_PRESSURE),
@@ -75,5 +75,9 @@ public class SimpleSquaredFuncMinimum {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		new SimpleSquaredFuncMinimum(false);
 	}
 }
