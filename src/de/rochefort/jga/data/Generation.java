@@ -48,7 +48,7 @@ public class Generation {
 			}
 			Iterator<Individual> it = selection.iterator();
 			List<Individual> children = crosser.crossover(it.next(), it.next());
-			mutator.mutate(children);
+			mutator.mutate(children, this);
 			for(Individual individual : children){
 				if(offspring.size() >= this.individuals.size()){
 					break;
@@ -115,9 +115,14 @@ public class Generation {
 		return this.individuals.size();
 	}
 	
-	public List<Individual> getIndividualsSortedByFitness(List<Objective> objectives){
+	public List<Individual> getIndividuals(){
 		List<Individual> list = new ArrayList<>();
 		list.addAll(individuals);
+		return list;
+	}
+
+	public List<Individual> getIndividualsSortedByFitness(List<Objective> objectives){
+		List<Individual> list = getIndividuals();
 		list.sort(Individual.getFitnessComparator(objectives));
 		return list;
 	}

@@ -3,6 +3,7 @@ package de.rochefort.jga.alg.mutation;
 import java.util.List;
 
 import de.rochefort.jga.alg.GeneticAlgorithm;
+import de.rochefort.jga.data.Generation;
 import de.rochefort.jga.data.Individual;
 
 public class SimpleMutation extends MutationAlgorithm {
@@ -14,7 +15,7 @@ public class SimpleMutation extends MutationAlgorithm {
 	}
 
 	@Override
-	public void mutate(List<Individual> individuals) {
+	public void mutate(List<Individual> individuals, Generation generation) {
 		for (Individual individual : individuals) {
 			boolean[] bits = individual.encode();
 			for (int index = 0; index < bits.length; index++) {
