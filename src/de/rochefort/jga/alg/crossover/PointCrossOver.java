@@ -7,12 +7,17 @@ import de.rochefort.jga.alg.GeneticAlgorithm;
 import de.rochefort.jga.data.Individual;
 import de.rochefort.jga.data.Parameter;
 
-public class SinglePointCrossOver extends CrossOverAlgorithm {
+public class PointCrossOver extends CrossOverAlgorithm {
+	public enum CrossOverType {
+		SINGLE, DUAL
+	}
 	private final double crossOverProbability;
+	private final CrossOverType type;
 
-	public SinglePointCrossOver(double crossOverProbability) {
+	public PointCrossOver(double crossOverProbability, CrossOverType type) {
 		super();
 		this.crossOverProbability = crossOverProbability;
+		this.type = type;
 	}
 
 	@Override
@@ -21,12 +26,16 @@ public class SinglePointCrossOver extends CrossOverAlgorithm {
 		boolean[] offspringAGenes = parentA.encode();
 		boolean[] offspringBGenes = parentB.encode();
 
-		int crossoverLocation = 0;
 		if (GeneticAlgorithm.RANDOM.nextDouble() < crossOverProbability) {
-			crossoverLocation = GeneticAlgorithm.RANDOM.nextInt(offspringAGenes.length) - 1;
+			int crossoverLocation1 = GeneticAlgorithm.RANDOM.nextInt(offspringAGenes.length) - 1;
+			int crossoverLocation2 = GeneticAlgorithm.RANDOM.nextInt(offspringAGenes.length) - 1;
+			
 
 			for (int g = 0; g < offspringAGenes.length; g++) {
-				if (g >= crossoverLocation) {
+				if (
+						g >= Math.min(crossoverLocation1, crossoverLocation2) 
+						&& (type == CrossOverType.SINGLE || g < Math.max(crossoverLocation1, crossoverLocation2))
+						) {
 					boolean o1G = offspringAGenes[g];
 					offspringAGenes[g] = offspringBGenes[g];
 					offspringBGenes[g] = o1G;

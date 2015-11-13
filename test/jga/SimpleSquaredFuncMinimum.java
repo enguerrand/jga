@@ -11,7 +11,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import de.rochefort.jga.alg.GeneticAlgorithm;
-import de.rochefort.jga.alg.crossover.SinglePointCrossOver;
+import de.rochefort.jga.alg.crossover.PointCrossOver;
+import de.rochefort.jga.alg.crossover.PointCrossOver.CrossOverType;
 import de.rochefort.jga.alg.mutation.SimpleMutation;
 import de.rochefort.jga.alg.selection.SimpleTournamentSelection;
 import de.rochefort.jga.data.Individual;
@@ -57,14 +58,14 @@ public class SimpleSquaredFuncMinimum {
 				g -> {},
 				evaluationFunction,
 				new SimpleTournamentSelection(objectives, SELECTION_PRESSURE),
-				new SinglePointCrossOver(CROSS_OVER_PROBABILITY),
+				new PointCrossOver(CROSS_OVER_PROBABILITY, CrossOverType.SINGLE),
 				new SimpleMutation(MUTATION_PROBABILITY));
-		try {
-			PrintStream stream = new PrintStream(new File(OUT_FILE_NAME));
-			ga.setOutputStream(stream);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+//		try {
+//			PrintStream stream = new PrintStream(new File(OUT_FILE_NAME));
+//			ga.setOutputStream(stream);
+//		} catch (FileNotFoundException e) {
+//			throw new RuntimeException(e);
+//		}
 		Parameter x = new Parameter(BIT_COUNT);
 		x.setMin(-10);
 		x.setMax(10);
