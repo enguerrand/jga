@@ -1,2 +1,2 @@
 # jga
-A reusable Java Genetic Algorithm implementation
+A Java Genetic Algorithm implementation
