@@ -1,10 +1,10 @@
 package de.rochefort.jga.alg.mutation;
 
-import java.util.List;
-
 import de.rochefort.jga.alg.GeneticAlgorithm;
 import de.rochefort.jga.data.Generation;
 import de.rochefort.jga.data.Individual;
+
+import java.util.List;
 
 public class LinearDynamicMutation extends MutationAlgorithm {
 	private final double initialMutationProbability;
@@ -12,7 +12,7 @@ public class LinearDynamicMutation extends MutationAlgorithm {
 	private final double mutationProbabilityGradient;
 	private final long generationCount;
 
-	public LinearDynamicMutation(double initialMutationProbability, double finalMutationProbability, long generationCount) {
+	protected LinearDynamicMutation(double initialMutationProbability, double finalMutationProbability, long generationCount) {
 		super();
 		this.initialMutationProbability = initialMutationProbability;
 		this.finalMutationProbability = finalMutationProbability;

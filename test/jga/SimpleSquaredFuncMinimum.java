@@ -1,23 +1,19 @@
 package jga;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.util.Arrays;
+import de.rochefort.jga.alg.GeneticAlgorithm;
+import de.rochefort.jga.alg.crossover.PointCrossOver;
+import de.rochefort.jga.alg.crossover.PointCrossOver.CrossOverType;
+import de.rochefort.jga.alg.mutation.MutationAlgorithm;
+import de.rochefort.jga.alg.selection.SimpleTournamentSelection;
+import de.rochefort.jga.data.Individual;
+import de.rochefort.jga.data.Parameter;
+import de.rochefort.jga.objectives.Objective;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-
-import de.rochefort.jga.alg.GeneticAlgorithm;
-import de.rochefort.jga.alg.crossover.PointCrossOver;
-import de.rochefort.jga.alg.crossover.PointCrossOver.CrossOverType;
-import de.rochefort.jga.alg.mutation.SimpleMutation;
-import de.rochefort.jga.alg.selection.SimpleTournamentSelection;
-import de.rochefort.jga.data.Individual;
-import de.rochefort.jga.data.Parameter;
-import de.rochefort.jga.objectives.Objective;
 
 public class SimpleSquaredFuncMinimum {
 	private static final String OUTPUT_NAME = "SQUARED";
@@ -48,20 +44,21 @@ public class SimpleSquaredFuncMinimum {
 		Objective obj = new Objective() {
 			@Override
 			public double computeFitness(Individual individual) {
-				return 1 - individual.getOutputValue(OUTPUT_NAME).doubleValue() / 100;
+				return 1 - individual.getOutputValue(OUTPUT_NAME) / 100;
 			}
 		};
-		List<Objective> objectives = Arrays.asList(obj);
+		List<Objective> objectives = Collections.singletonList(obj);
 		final GeneticAlgorithm ga = new GeneticAlgorithm(
 				POOL_SIZE, 
 				simulateLongTask ? GENERATION_COUNT_SLOW : GENERATION_COUNT_FAST,
 				g -> {},
 				evaluationFunction,
-				new SimpleTournamentSelection(objectives, SELECTION_PRESSURE),
-				new PointCrossOver(CROSS_OVER_PROBABILITY, CrossOverType.SINGLE),
-				new SimpleMutation(MUTATION_PROBABILITY));
+				SimpleTournamentSelection.newSimpleTournamentSelection(objectives, SELECTION_PRESSURE),
+				PointCrossOver.newPointCrossOverAlgorithm(CROSS_OVER_PROBABILITY, CrossOverType.SINGLE),
+				MutationAlgorithm.newSimpleMutation(MUTATION_PROBABILITY));
 //		try {
-//			PrintStream stream = new PrintStream(new File(OUT_FILE_NAME));
+//			PrintStream stream = new PrintStream(new File(
+// ));
 //			ga.setOutputStream(stream);
 //		} catch (FileNotFoundException e) {
 //			throw new RuntimeException(e);

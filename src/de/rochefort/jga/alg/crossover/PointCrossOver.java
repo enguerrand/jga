@@ -1,23 +1,38 @@
 package de.rochefort.jga.alg.crossover;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.rochefort.jga.alg.GeneticAlgorithm;
 import de.rochefort.jga.data.Individual;
 import de.rochefort.jga.data.Parameter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PointCrossOver extends CrossOverAlgorithm {
+	public static final CrossOverType DEFAULT_CROSS_OVER_TYPE = CrossOverType.DUAL;
+	public static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.7;
+
 	public enum CrossOverType {
 		SINGLE, DUAL
 	}
 	private final double crossOverProbability;
 	private final CrossOverType type;
 
-	public PointCrossOver(double crossOverProbability, CrossOverType type) {
+    protected PointCrossOver(double crossOverProbability, CrossOverType type) {
 		super();
 		this.crossOverProbability = crossOverProbability;
 		this.type = type;
+	}
+
+    protected PointCrossOver(CrossOverType type) {
+		this(DEFAULT_CROSS_OVER_PROBABILITY, type);
+	}
+
+    protected PointCrossOver(double crossOverProbability) {
+		this(crossOverProbability, DEFAULT_CROSS_OVER_TYPE);
+	}
+
+	protected PointCrossOver() {
+		this(DEFAULT_CROSS_OVER_PROBABILITY, DEFAULT_CROSS_OVER_TYPE);
 	}
 
 	@Override

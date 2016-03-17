@@ -1,5 +1,7 @@
 package de.rochefort.jga.data;
 
+import de.rochefort.jga.objectives.Objective;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
-
-import de.rochefort.jga.objectives.Objective;
 
 public class Individual {
 	private final Map<Parameter, Double> parameterValues = new HashMap<>();
@@ -35,7 +35,7 @@ public class Individual {
 			boolean[] bits = new boolean [param.getBitCount()];
 			System.arraycopy(bitString, pos, bits, 0, param.getBitCount());
 			pos += param.getBitCount();
-			valuesMap.put(param, new Double(param.decodeValue(bits)));
+			valuesMap.put(param, param.decodeValue(bits));
 		}
 		return valuesMap;
 	}
@@ -47,7 +47,7 @@ public class Individual {
 	}
 	
 	public boolean[] encode(){
-		List<Parameter> params = new ArrayList<Parameter>(parameterValues.keySet());
+		List<Parameter> params = new ArrayList<>(parameterValues.keySet());
 		Collections.sort(params, Parameter.INDEX_COMPARATOR);
 		int totalBitCount = 0;
 		for(Parameter param : params){
@@ -78,7 +78,15 @@ public class Individual {
 		}
 		return value;
 	}
-	
+
+	public Double getInputValue(Parameter parameter){
+		Double value = this.parameterValues.get(parameter);
+		if(value == null){
+			throw new RuntimeException("Input "+parameter+" does not exist!");
+		}
+		return value;
+	}
+
 	public void evaluate(Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction){
 		this.outputValues.putAll(evaluationFunction.apply(parameterValues));
 	}
@@ -104,12 +112,8 @@ public class Individual {
 	}
 	
 	public static Comparator<Individual> getFitnessComparator(List<Objective> objectives){ 
-		return new Comparator<Individual>() {
-			@Override
-			public int compare(Individual i1, Individual i2) {
-				return Double.compare(i2.getFitness(objectives), i1.getFitness(objectives));
-			}
-		};
+		return (i1, i2) ->
+				Double.compare(i2.getFitness(objectives), i1.getFitness(objectives));
 	}
 	
 }

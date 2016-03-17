@@ -1,17 +1,13 @@
 package de.rochefort.jga.data;
 
+import de.rochefort.jga.alg.GeneticAlgorithm;
+
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.rochefort.jga.alg.GeneticAlgorithm;
-
 public class Parameter {
-	public static final Comparator<Parameter> INDEX_COMPARATOR = new Comparator<Parameter>() {
-		@Override
-		public int compare(Parameter arg0, Parameter arg1) {
-			return Integer.compare(arg0.getIndex(), arg1.getIndex());
-		}
-	};
+	public static final Comparator<Parameter> INDEX_COMPARATOR = (arg0, arg1) ->
+			Integer.compare(arg0.getIndex(), arg1.getIndex());
 	private static AtomicInteger PARAMETER_INDEX = new AtomicInteger(1);
 	private int bitCount;
 	private double min = Double.MIN_VALUE;
@@ -28,6 +24,11 @@ public class Parameter {
 		this(bitCount);
 		this.min = min;
 		this.max = max;
+	}
+
+	public Parameter(int bitCount, double min, double max, String name){
+		this(bitCount, min, max);
+		this.name = name;
 	}
 	
 	public int getIndex() {

@@ -1,5 +1,10 @@
 package de.rochefort.jga.data;
 
+import de.rochefort.jga.alg.crossover.CrossOverAlgorithm;
+import de.rochefort.jga.alg.mutation.MutationAlgorithm;
+import de.rochefort.jga.alg.selection.SelectionAlgorithm;
+import de.rochefort.jga.objectives.Objective;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,11 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import de.rochefort.jga.alg.crossover.CrossOverAlgorithm;
-import de.rochefort.jga.alg.mutation.MutationAlgorithm;
-import de.rochefort.jga.alg.selection.SelectionAlgorithm;
-import de.rochefort.jga.objectives.Objective;
+import java.util.stream.Collectors;
 
 public class Generation {
 	private final List<Individual> individuals;
@@ -82,10 +83,9 @@ public class Generation {
 	
 	public void evaluate(Consumer<Generation> preparer, Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction, ExecutorService executor) throws InterruptedException, ExecutionException{
 		preparer.accept(this);
-		List<Future<?>> jobs = new ArrayList<>();
-		for(Individual individual : this.individuals){
-			jobs.add(executor.submit(()->individual.evaluate(evaluationFunction)));
-		}
+		List<Future<?>> jobs = this.individuals.stream()
+				.map(individual -> executor.submit(
+						() -> individual.evaluate(evaluationFunction))).collect(Collectors.toList());
 		for(Future<?> job : jobs){
 			job.get();
 		}
@@ -95,9 +95,9 @@ public class Generation {
 	
 	public double getFitnessSum(List<Objective> objectives) {
 		double fitnessSum = 0;
-		for (int i = 0; i < this.individuals.size(); i++) {
-			fitnessSum = fitnessSum + this.individuals.get(i).getFitness(objectives);
-		}
+        for (Individual individual : this.individuals) {
+            fitnessSum = fitnessSum + individual.getFitness(objectives);
+        }
 		return fitnessSum;
 	}
 	
@@ -107,8 +107,7 @@ public class Generation {
 	}
 	
 	public Generation deepCopy(){
-		Generation copy = new Generation(this.index, this.individuals);
-		return copy;
+        return new Generation(this.index, this.individuals);
 	}
 	
 	public int getIndividualsCount(){

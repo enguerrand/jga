@@ -1,15 +1,16 @@
 package de.rochefort.jga.alg.selection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import de.rochefort.jga.alg.GeneticAlgorithm;
 import de.rochefort.jga.data.Generation;
 import de.rochefort.jga.data.Individual;
 import de.rochefort.jga.objectives.Objective;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class SimpleTournamentSelection extends SelectionAlgorithm{
+	private static double DEFAULT_SELECTION_PRESSURE = 0.3;
 	private double selectionPressure;
 	/**
 	 * Constructs a SimpleTournamentSelection
@@ -20,12 +21,16 @@ public class SimpleTournamentSelection extends SelectionAlgorithm{
 	 * 				A value of 0 considers all individuals for selection. A value of e.g. 0.3 discounts the
 	 * 				unfittest 30% of the pool and chooses from the remaining 70%.
 	 */
-	public SimpleTournamentSelection(List<Objective> objectives, double selectionPressure) {
+	protected SimpleTournamentSelection(Collection<Objective> objectives, double selectionPressure) {
 		super(objectives);
 		if(selectionPressure < 0 || selectionPressure > 1){
 			throw new IllegalArgumentException("Selection pressure "+selectionPressure+" not allowed. (Value between 0 and 1 expected)");
 		}
 		this.selectionPressure = selectionPressure;
+	}
+
+	SimpleTournamentSelection(Collection<Objective> objectives){
+		this(objectives, DEFAULT_SELECTION_PRESSURE);
 	}
 
 	@Override

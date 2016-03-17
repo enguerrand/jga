@@ -1,15 +1,20 @@
 package de.rochefort.jga.alg.mutation;
 
-import java.util.List;
-
 import de.rochefort.jga.alg.GeneticAlgorithm;
 import de.rochefort.jga.data.Generation;
 import de.rochefort.jga.data.Individual;
 
+import java.util.List;
+
 public class SimpleMutation extends MutationAlgorithm {
+	public final static double DEFAULT_MUTATION_PROBABILITY = 0.005;
 	private final double mutationProbability;
-	
-	public SimpleMutation(double mutationProbability) {
+
+    protected SimpleMutation(){
+        this(DEFAULT_MUTATION_PROBABILITY);
+    }
+
+	SimpleMutation(double mutationProbability) {
 		super();
 		this.mutationProbability = mutationProbability;
 	}

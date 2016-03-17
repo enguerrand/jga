@@ -1,5 +1,11 @@
 package de.rochefort.jga.alg;
 
+import de.rochefort.jga.alg.crossover.CrossOverAlgorithm;
+import de.rochefort.jga.alg.mutation.MutationAlgorithm;
+import de.rochefort.jga.alg.selection.SelectionAlgorithm;
+import de.rochefort.jga.data.Generation;
+import de.rochefort.jga.data.Parameter;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,12 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import de.rochefort.jga.alg.crossover.CrossOverAlgorithm;
-import de.rochefort.jga.alg.mutation.MutationAlgorithm;
-import de.rochefort.jga.alg.selection.SelectionAlgorithm;
-import de.rochefort.jga.data.Generation;
-import de.rochefort.jga.data.Parameter;
 
 public class GeneticAlgorithm {
 	public static Random RANDOM = new Random(System.currentTimeMillis());
