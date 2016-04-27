@@ -37,12 +37,14 @@ public class GeneticAlgorithm {
 			int populationSize, 
 			int maxGenerationCount,
 			Consumer<Generation> generationPreparer,
+			Collection<Parameter> parameters,
 			Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction,
 			SelectionAlgorithm selectionAlgorithm,
 			CrossOverAlgorithm crossOverAlgorithm,
 			MutationAlgorithm mutationAlgorithm) {
 		this.populationSize = populationSize;
 		this.maxGenerationCount = maxGenerationCount;
+        this.parameters.addAll(parameters);
 		this.bitsPerValue = 20;
 		this.generationPreparer = generationPreparer;
 		this.evaluationFunction = evaluationFunction;
@@ -62,13 +64,6 @@ public class GeneticAlgorithm {
 		return bitsPerValue;
 	}
 
-	public void addParameter(Parameter param){
-		this.parameters.add(param);
-	}
-	public void addAllParameters(Collection<Parameter> params){
-		this.parameters.addAll(params);
-	}
-	
 	public void setOutputStream(PrintStream outputStream) {
 		this.outputStream = outputStream;
 	}

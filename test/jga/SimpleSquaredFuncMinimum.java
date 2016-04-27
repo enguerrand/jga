@@ -25,33 +25,35 @@ public class SimpleSquaredFuncMinimum {
 	private static final double SELECTION_PRESSURE = 0.4;
 	private static final double MUTATION_PROBABILITY = 0.005;
 	private static final int BIT_COUNT = 48;
-	public SimpleSquaredFuncMinimum(boolean simulateLongTask) {
-		Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction = new Function<Map<Parameter,Double>, Map<String,Double>>() {
-			@Override
-			public Map<String, Double> apply(Map<Parameter, Double> params) {
-				if(simulateLongTask){
-					try {
-						// Test parallel execution of long running jobs
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				Double value = params.entrySet().iterator().next().getValue();
-				return Collections.singletonMap(OUTPUT_NAME, Math.pow(value, 2));
-			}
-		};
+	private SimpleSquaredFuncMinimum(boolean simulateLongTask) {
+		Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction = params -> {
+            if(simulateLongTask){
+                try {
+                    // Test parallel execution of long running jobs
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Double value = params.entrySet().iterator().next().getValue();
+            return Collections.singletonMap(OUTPUT_NAME, Math.pow(value, 2));
+        };
 		Objective obj = new Objective() {
 			@Override
 			public double computeFitness(Individual individual) {
 				return 1 - individual.getOutputValue(OUTPUT_NAME) / 100;
 			}
 		};
+
+        Parameter x = new Parameter(BIT_COUNT);
+        x.setMin(-10);
+        x.setMax(10);
 		List<Objective> objectives = Collections.singletonList(obj);
 		final GeneticAlgorithm ga = new GeneticAlgorithm(
 				POOL_SIZE, 
 				simulateLongTask ? GENERATION_COUNT_SLOW : GENERATION_COUNT_FAST,
 				g -> {},
+				Collections.singleton(x),
 				evaluationFunction,
 				SimpleTournamentSelection.newSimpleTournamentSelection(objectives, SELECTION_PRESSURE),
 				PointCrossOver.newPointCrossOverAlgorithm(CROSS_OVER_PROBABILITY, CrossOverType.SINGLE),
@@ -63,10 +65,6 @@ public class SimpleSquaredFuncMinimum {
 //		} catch (FileNotFoundException e) {
 //			throw new RuntimeException(e);
 //		}
-		Parameter x = new Parameter(BIT_COUNT);
-		x.setMin(-10);
-		x.setMax(10);
-		ga.addParameter(x);
 		try {
 			ga.run(POOL_SIZE);
 		} catch (ExecutionException e) {
