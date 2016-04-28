@@ -7,7 +7,6 @@ import de.rochefort.jga.data.Individual;
 import java.util.List;
 
 public class SimpleMutation extends MutationAlgorithm {
-	public final static double DEFAULT_MUTATION_PROBABILITY = 0.005;
 	private final double mutationProbability;
 
     protected SimpleMutation(){

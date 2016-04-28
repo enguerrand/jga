@@ -6,7 +6,7 @@ import de.rochefort.jga.data.Individual;
 import java.util.List;
 
 public abstract class MutationAlgorithm {
-
+	public final static double DEFAULT_MUTATION_PROBABILITY = 0.005;
     protected MutationAlgorithm() {
 	}
 
