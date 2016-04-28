@@ -5,7 +5,9 @@ import de.rochefort.jga.alg.mutation.MutationAlgorithm;
 import de.rochefort.jga.alg.selection.SelectionAlgorithm;
 import de.rochefort.jga.data.Generation;
 import de.rochefort.jga.data.Parameter;
+import de.rochefort.jga.objectives.Objective;
 
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +35,19 @@ public class GeneticAlgorithm {
 	private final CrossOverAlgorithm crossOverAlgorithm;
 	private final MutationAlgorithm mutationAlgorithm;
 	private PrintStream outputStream = System.out;
+	private OutputVerbosity outputVerbosity = OutputVerbosity.FULL;
+	public enum OutputVerbosity {
+		NONE(0), GENERATION_SUMMARY(10), INDIVIUALS_SUMMARY(20), FULL(100);
+        private final int level;
+        OutputVerbosity(int level){
+            this.level = level;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+    }
+
 	public GeneticAlgorithm(
 			int populationSize, 
 			int maxGenerationCount,
@@ -64,9 +79,21 @@ public class GeneticAlgorithm {
 		return bitsPerValue;
 	}
 
-	public void setOutputStream(PrintStream outputStream) {
+    public void setOutputVerbosity(OutputVerbosity outputVerbosity) {
+        this.outputVerbosity = outputVerbosity;
+    }
+
+    public void setOutputFile(String pathToFile) throws FileNotFoundException {
+        setOutputStream(new PrintStream(pathToFile));
+    }
+
+    public void setOutputStream(PrintStream outputStream) {
 		this.outputStream = outputStream;
 	}
+
+    public List<Objective> getObjectives() {
+        return this.selectionAlgorithm.getObjectives();
+    }
 	
 	public void run(int parallelJobsCount) throws ExecutionException {
 		ExecutorService executor = Executors.newCachedThreadPool();
@@ -81,7 +108,7 @@ public class GeneticAlgorithm {
 				evaluateGeneration(executor, g);
 			}
 			generations.add(g.deepCopy());
-			g.print(outputStream);
+			g.print(getObjectives(), this.outputStream, this.outputVerbosity);
 		} else {
 			g = generations.get(generations.size()-1);
 		}
@@ -94,7 +121,7 @@ public class GeneticAlgorithm {
 				evaluateGeneration(executor, g);
 			}
 			generations.add(g.deepCopy());
-			g.print(outputStream);
+			g.print(getObjectives(), this.outputStream, this.outputVerbosity);
 		}
 	}
 	private void evaluateGeneration(ExecutorService executor, Generation g) throws ExecutionException {

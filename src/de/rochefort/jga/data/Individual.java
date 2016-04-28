@@ -87,7 +87,7 @@ public class Individual {
 		return value;
 	}
 
-	public void evaluate(Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction){
+	void evaluate(Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction){
 		this.outputValues.putAll(evaluationFunction.apply(parameterValues));
 	}
 
@@ -110,8 +110,8 @@ public class Individual {
 		sb.append("]");
 		return sb.toString();
 	}
-	
-	public static Comparator<Individual> getFitnessComparator(List<Objective> objectives){ 
+
+	static Comparator<Individual> getFitnessComparator(List<Objective> objectives){
 		return (i1, i2) ->
 				Double.compare(i2.getFitness(objectives), i1.getFitness(objectives));
 	}

@@ -1,6 +1,7 @@
 package jga;
 
 import de.rochefort.jga.alg.GeneticAlgorithm;
+import de.rochefort.jga.alg.GeneticAlgorithm.OutputVerbosity;
 import de.rochefort.jga.alg.crossover.PointCrossOver;
 import de.rochefort.jga.alg.crossover.PointCrossOver.CrossOverType;
 import de.rochefort.jga.alg.mutation.MutationAlgorithm;
@@ -65,6 +66,7 @@ public class SimpleSquaredFuncMinimum {
 //		} catch (FileNotFoundException e) {
 //			throw new RuntimeException(e);
 //		}
+		ga.setOutputVerbosity(OutputVerbosity.FULL);
 		try {
 			ga.run(POOL_SIZE);
 		} catch (ExecutionException e) {

@@ -1,5 +1,6 @@
 package de.rochefort.jga.data;
 
+import de.rochefort.jga.alg.GeneticAlgorithm.OutputVerbosity;
 import de.rochefort.jga.alg.crossover.CrossOverAlgorithm;
 import de.rochefort.jga.alg.mutation.MutationAlgorithm;
 import de.rochefort.jga.alg.selection.SelectionAlgorithm;
@@ -101,7 +102,10 @@ public class Generation {
 		return fitnessSum;
 	}
 	
-	
+	public double getMeanFitness(List<Objective> objectives){
+        return getFitnessSum(objectives) / individuals.size();
+    }
+
 	public double getHighestFitness(List<Objective> objectives) {
 		return getIndividualsSortedByFitness(objectives).get(0).getFitness(objectives);
 	}
@@ -130,14 +134,36 @@ public class Generation {
 		return individuals.get(index);
 	}
 	
-	public void print(PrintStream stream){
-		stream.println("##########################################################");
-		stream.println("   GENERATION "+this.index);
-		stream.println("##########################################################");
-		for(Individual i : individuals){
-			stream.println(i.toString());
+	public void print(List<Objective> objectives, PrintStream stream, OutputVerbosity verbosity){
+		if(verbosity == OutputVerbosity.NONE){
+			return;
 		}
-		stream.println("");
+        boolean printPadding = verbosity.getLevel() > OutputVerbosity.GENERATION_SUMMARY.getLevel();
+		if(printPadding)
+            stream.println("##########################################################");
+		stream.println("   GENERATION "+this.index+" (Mean fitness: "+String.valueOf(getMeanFitness(objectives))+")");
+		if(printPadding)
+		    stream.println("##########################################################");
+        if(verbosity.getLevel() > OutputVerbosity.GENERATION_SUMMARY.getLevel()) {
+            for (Individual i : individuals) {
+                double fitness = i.getFitness(objectives);
+                String fitnessString = "Fitness: " + String.valueOf(fitness);
+                switch (verbosity) {
+                    case INDIVIUALS_SUMMARY:
+                        stream.println(fitnessString);
+                        break;
+                    case FULL:
+                        stream.println(i.toString() + " - " + fitnessString);
+                        break;
+                    case GENERATION_SUMMARY:
+                    default:
+                        break;
+                }
+            }
+        }
+
+		if (printPadding)
+            stream.println("");
 		stream.flush();
 	}
 
