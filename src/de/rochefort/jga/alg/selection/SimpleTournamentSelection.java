@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SimpleTournamentSelection extends SelectionAlgorithm{
+public class SimpleTournamentSelection<T> extends SelectionAlgorithm<T> {
 	private static double DEFAULT_SELECTION_PRESSURE = 0.3;
 	private double selectionPressure;
 	/**
@@ -21,7 +21,7 @@ public class SimpleTournamentSelection extends SelectionAlgorithm{
 	 * 				A value of 0 considers all individuals for selection. A value of e.g. 0.3 discounts the
 	 * 				unfittest 30% of the pool and chooses from the remaining 70%.
 	 */
-	protected SimpleTournamentSelection(Collection<Objective> objectives, double selectionPressure) {
+	protected SimpleTournamentSelection(Collection<Objective<T>> objectives, double selectionPressure) {
 		super(objectives);
 		if(selectionPressure < 0 || selectionPressure > 1){
 			throw new IllegalArgumentException("Selection pressure "+selectionPressure+" not allowed. (Value between 0 and 1 expected)");
@@ -29,20 +29,20 @@ public class SimpleTournamentSelection extends SelectionAlgorithm{
 		this.selectionPressure = selectionPressure;
 	}
 
-	SimpleTournamentSelection(Collection<Objective> objectives){
+	SimpleTournamentSelection(Collection<Objective<T>> objectives) {
 		this(objectives, DEFAULT_SELECTION_PRESSURE);
 	}
 
 	@Override
-	public Collection<Individual> selectIndividuals(Generation generation, int selectionSize) {
-		List<Individual> selectedIndividuals = new ArrayList<>();
+	public Collection<Individual<T>> selectIndividuals(Generation<T> generation, int selectionSize) {
+		List<Individual<T>> selectedIndividuals = new ArrayList<>();
 		while(selectedIndividuals.size() < selectionSize){
 			selectedIndividuals.add(selectIndividual(generation, getObjectives()));
 		}
 		return selectedIndividuals;
 	}
-	
-	private Individual selectIndividual(Generation generation, List<Objective> objectives){
+
+	private Individual<T> selectIndividual(Generation<T> generation, List<Objective<T>> objectives) {
 		double fitnessSum = generation.getFitnessSum(objectives);
 		if (fitnessSum == 0) {
 			int r = GeneticAlgorithm.RANDOM.nextInt(generation.getIndividualsCount() - 1);
@@ -50,8 +50,8 @@ public class SimpleTournamentSelection extends SelectionAlgorithm{
 		}
 		double rouletteBall = GeneticAlgorithm.RANDOM.nextDouble() * fitnessSum * (1-this.selectionPressure);
 		double sum = 0;
-		
-		for (Individual individual : generation.getIndividualsSortedByFitness(objectives)) {
+
+		for (Individual<T> individual : generation.getIndividualsSortedByFitness(objectives)) {
 			sum = sum + individual.getFitness(objectives);
 			if (sum >= rouletteBall) {
 				return individual;

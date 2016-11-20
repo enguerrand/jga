@@ -6,7 +6,7 @@ import de.rochefort.jga.data.Individual;
 
 import java.util.List;
 
-public class SimpleMutation extends MutationAlgorithm {
+public class SimpleMutation<T> extends MutationAlgorithm<T> {
 	private final double mutationProbability;
 
     protected SimpleMutation(){
@@ -19,8 +19,8 @@ public class SimpleMutation extends MutationAlgorithm {
 	}
 
 	@Override
-	public void mutate(List<Individual> individuals, Generation generation) {
-		for (Individual individual : individuals) {
+	public void mutate(List<Individual<T>> individuals, Generation<T> generation) {
+		for (Individual<T> individual : individuals) {
 			boolean[] bits = individual.encode();
 			for (int index = 0; index < bits.length; index++) {
 				if (GeneticAlgorithm.RANDOM.nextDouble() < mutationProbability) {

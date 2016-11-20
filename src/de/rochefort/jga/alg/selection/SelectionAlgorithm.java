@@ -9,23 +9,24 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class SelectionAlgorithm {
-	private final List<Objective> objectives = new ArrayList<>();
-    protected SelectionAlgorithm(Collection<Objective> objectives) {
+public abstract class SelectionAlgorithm<T> {
+	private final List<Objective<T>> objectives = new ArrayList<>();
+
+	protected SelectionAlgorithm(Collection<Objective<T>> objectives) {
 		this.objectives.addAll(objectives);
 	}
 
-	public abstract Collection<Individual> selectIndividuals(Generation generation, int individualCount);
-	
-	public List<Objective> getObjectives() {
+	public abstract Collection<Individual<T>> selectIndividuals(Generation<T> generation, int individualCount);
+
+	public List<Objective<T>> getObjectives() {
 		return Collections.unmodifiableList(objectives);
 	}
 
-	public static SelectionAlgorithm newSimpleTournamentSelection(Collection<Objective> objectives){
-		return new SimpleTournamentSelection(objectives);
+	public static <T> SelectionAlgorithm<T> newSimpleTournamentSelection(Collection<Objective<T>> objectives) {
+		return new SimpleTournamentSelection<>(objectives);
 	}
 
-	public static SelectionAlgorithm newSimpleTournamentSelection(Collection<Objective> objectives, double selectionPressure){
-		return new SimpleTournamentSelection(objectives, selectionPressure);
+	public static <T> SelectionAlgorithm<T> newSimpleTournamentSelection(Collection<Objective<T>> objectives, double selectionPressure) {
+		return new SimpleTournamentSelection<>(objectives, selectionPressure);
 	}
 }

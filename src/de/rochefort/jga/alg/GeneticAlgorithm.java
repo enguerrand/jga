@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class GeneticAlgorithm {
+public class GeneticAlgorithm<T> {
 	public static Random RANDOM = new Random(System.currentTimeMillis());
 	private int populationSize = 40;	
 	private int bitsPerValue;
@@ -28,12 +28,12 @@ public class GeneticAlgorithm {
 	private int maxGenerationCount = 100;
 	private volatile boolean stopRequested = false;
 	private final List<Parameter> parameters = new ArrayList<>();
-	private final List<Generation> generations = new ArrayList<>();
-	private final Consumer<Generation> generationPreparer;
-	private final Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction;
-	private final SelectionAlgorithm selectionAlgorithm;
-	private final CrossOverAlgorithm crossOverAlgorithm;
-	private final MutationAlgorithm mutationAlgorithm;
+	private final List<Generation<T>> generations = new ArrayList<>();
+	private final Consumer<Generation<T>> generationPreparer;
+	private final Function<Map<Parameter, Double>, T> evaluationFunction;
+	private final SelectionAlgorithm<T> selectionAlgorithm;
+	private final CrossOverAlgorithm<T> crossOverAlgorithm;
+	private final MutationAlgorithm<T> mutationAlgorithm;
 	private PrintStream outputStream = System.out;
 	private OutputVerbosity outputVerbosity = OutputVerbosity.FULL;
 	public enum OutputVerbosity {
@@ -49,14 +49,14 @@ public class GeneticAlgorithm {
     }
 
 	public GeneticAlgorithm(
-			int populationSize, 
+			int populationSize,
 			int maxGenerationCount,
-			Consumer<Generation> generationPreparer,
+			Consumer<Generation<T>> generationPreparer,
 			Collection<Parameter> parameters,
-			Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction,
-			SelectionAlgorithm selectionAlgorithm,
-			CrossOverAlgorithm crossOverAlgorithm,
-			MutationAlgorithm mutationAlgorithm) {
+			Function<Map<Parameter, Double>, T> evaluationFunction,
+			SelectionAlgorithm<T> selectionAlgorithm,
+			CrossOverAlgorithm<T> crossOverAlgorithm,
+			MutationAlgorithm<T> mutationAlgorithm) {
 		this.populationSize = populationSize;
 		this.maxGenerationCount = maxGenerationCount;
         this.parameters.addAll(parameters);
@@ -91,17 +91,17 @@ public class GeneticAlgorithm {
 		this.outputStream = outputStream;
 	}
 
-    public List<Objective> getObjectives() {
-        return this.selectionAlgorithm.getObjectives();
-    }
+	public List<Objective<T>> getObjectives() {
+		return this.selectionAlgorithm.getObjectives();
+	}
 	
 	public void run(int parallelJobsCount) throws ExecutionException {
-		ExecutorService executor = Executors.newCachedThreadPool();
+		final ExecutorService executor = Executors.newCachedThreadPool();
 //		ExecutorService executor = Executors.newFixedThreadPool(parallelJobsCount);
 		this.stopRequested = false;
-		Generation g;
+		Generation<T> g;
 		if(generations.isEmpty()){
-			g = new Generation(populationSize, parameters);
+			g = new Generation<>(populationSize, parameters);
 			if(parallelJobsCount == 1){
 				g.evaluate(this.generationPreparer, this.evaluationFunction);
 			} else {
@@ -114,7 +114,7 @@ public class GeneticAlgorithm {
 		}
 		
 		while(!stopRequested && generations.size() < maxGenerationCount){
-			g = new Generation(g, selectionAlgorithm, crossOverAlgorithm, mutationAlgorithm);
+			g = new Generation<>(g, selectionAlgorithm, crossOverAlgorithm, mutationAlgorithm);
 			if(parallelJobsCount == 1){
 				g.evaluate(this.generationPreparer, this.evaluationFunction);
 			} else {
@@ -124,7 +124,8 @@ public class GeneticAlgorithm {
 			g.print(getObjectives(), this.outputStream, this.outputVerbosity);
 		}
 	}
-	private void evaluateGeneration(ExecutorService executor, Generation g) throws ExecutionException {
+
+	private void evaluateGeneration(ExecutorService executor, Generation<T> g) throws ExecutionException {
 		try {
 			g.evaluate(this.generationPreparer, this.evaluationFunction, executor);
 		} catch (InterruptedException e) {

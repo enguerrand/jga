@@ -4,26 +4,26 @@ import de.rochefort.jga.data.Individual;
 
 import java.util.List;
 
-public abstract class CrossOverAlgorithm {
+public abstract class CrossOverAlgorithm<T> {
 
 	protected CrossOverAlgorithm() {
 	}
 
-	public abstract List<Individual> crossover(Individual parentA, Individual parentB);
+	public abstract List<Individual<T>> crossover(Individual<T> parentA, Individual<T> parentB);
 
-	public static CrossOverAlgorithm newPointCrossOverAlgorithm(){
-		return new PointCrossOver();
+	public static <T> CrossOverAlgorithm<T> newPointCrossOverAlgorithm() {
+		return new PointCrossOver<>();
 	}
 
-	public static CrossOverAlgorithm newPointCrossOverAlgorithm(double crossOverProbability){
-		return new PointCrossOver(crossOverProbability);
+	public static <T> CrossOverAlgorithm<T> newPointCrossOverAlgorithm(double crossOverProbability) {
+		return new PointCrossOver<>(crossOverProbability);
 	}
 
-	public static CrossOverAlgorithm newPointCrossOverAlgorithm(PointCrossOver.CrossOverType crossOverType){
-		return new PointCrossOver(crossOverType);
+	public static <T> CrossOverAlgorithm<T> newPointCrossOverAlgorithm(PointCrossOver.CrossOverType crossOverType) {
+		return new PointCrossOver<>(crossOverType);
 	}
 
-	public static CrossOverAlgorithm newPointCrossOverAlgorithm(double crossOverProbability, PointCrossOver.CrossOverType crossOverType){
-		return new PointCrossOver(crossOverProbability, crossOverType);
+	public static <T> CrossOverAlgorithm<T> newPointCrossOverAlgorithm(double crossOverProbability, PointCrossOver.CrossOverType crossOverType) {
+		return new PointCrossOver<>(crossOverProbability, crossOverType);
 	}
 }

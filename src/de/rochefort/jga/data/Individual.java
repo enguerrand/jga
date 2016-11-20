@@ -11,23 +11,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
-public class Individual {
-	private final Map<Parameter, Double> parameterValues = new HashMap<>();
-	private final Map<String, Double> outputValues = new HashMap<>();
-	
-	public Individual(Map<Parameter, Double> parameterValues) {
-		this.parameterValues.putAll(parameterValues);
-	}
-	
-	public Individual (List<Parameter> parameters, boolean[] bitString){
-		this.parameterValues.putAll(decode(parameters, bitString));
-	}
-	
-	public List<Parameter> getParameters() {
-		return new ArrayList<>(parameterValues.keySet());
-	}
-	
-	private Map<Parameter, Double> decode(List<Parameter> parameters, boolean[] bitString){
+public class Individual<T> {
+    private final Map<Parameter, Double> parameterValues = new HashMap<>();
+    private T output;
+
+    public Individual(Map<Parameter, Double> parameterValues) {
+        this.parameterValues.putAll(parameterValues);
+    }
+
+    public Individual(List<Parameter> parameters, boolean[] bitString) {
+        this.parameterValues.putAll(decode(parameters, bitString));
+    }
+
+    public List<Parameter> getParameters() {
+        return new ArrayList<>(parameterValues.keySet());
+    }
+
+    private Map<Parameter, Double> decode(List<Parameter> parameters, boolean[] bitString){
 		Map<Parameter, Double> valuesMap = new HashMap<>();
 		Collections.sort(parameters, Parameter.INDEX_COMPARATOR);
 		int pos = 0;
@@ -41,14 +41,14 @@ public class Individual {
 	}
 	
 	public void recode(boolean[] bitstring){
-		Map<Parameter, Double> recodedValues = decode(getParameters(), bitstring);
-		this.parameterValues.clear();
-		this.parameterValues.putAll(recodedValues);
-	}
-	
-	public boolean[] encode(){
-		List<Parameter> params = new ArrayList<>(parameterValues.keySet());
-		Collections.sort(params, Parameter.INDEX_COMPARATOR);
+        final Map<Parameter, Double> recodedValues = decode(getParameters(), bitstring);
+        this.parameterValues.clear();
+        this.parameterValues.putAll(recodedValues);
+    }
+
+    public boolean[] encode() {
+        List<Parameter> params = new ArrayList<>(parameterValues.keySet());
+        Collections.sort(params, Parameter.INDEX_COMPARATOR);
 		int totalBitCount = 0;
 		for(Parameter param : params){
 			totalBitCount += param.getBitCount();
@@ -62,22 +62,21 @@ public class Individual {
 		}
 		return bitString;
 	}
-	
-	public double getFitness(List<Objective> objectives){
-		double cumulativeFitness = 0;
-		for(Objective obj : objectives){
-			cumulativeFitness += obj.computeFitness(this);
-		}
-		return cumulativeFitness / objectives.size();
-	}
-	
-	public Double getOutputValue(String outputName){
-		Double value = this.outputValues.get(outputName);
-		if(value == null){
-			throw new RuntimeException("Output "+outputName+" does not exist!");
-		}
-		return value;
-	}
+
+    public double getFitness(List<Objective<T>> objectives) {
+        double cumulativeFitness = 0;
+        for (Objective<T> obj : objectives) {
+            cumulativeFitness += obj.computeFitness(this);
+        }
+        return cumulativeFitness / objectives.size();
+    }
+
+    public T getOutput() {
+        if (output == null) {
+            throw new IllegalStateException("Individual not yet evaluated!");
+        }
+        return output;
+    }
 
 	public Double getInputValue(Parameter parameter){
 		Double value = this.parameterValues.get(parameter);
@@ -87,9 +86,9 @@ public class Individual {
 		return value;
 	}
 
-	void evaluate(Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction){
-		this.outputValues.putAll(evaluationFunction.apply(parameterValues));
-	}
+    void evaluate(Function<Map<Parameter, Double>, T> evaluationFunction) {
+        this.output = evaluationFunction.apply(parameterValues);
+    }
 
 	@Override
 	public String toString() {
@@ -100,20 +99,15 @@ public class Individual {
 			sb.append(entry.getValue());
 			sb.append("; ");
 		}
-		sb.append(" ### outputValues: ");
-		for(Entry<String, Double> entry: outputValues.entrySet()){
-			sb.append(entry.getKey());
-			sb.append("=>");
-			sb.append(entry.getValue());
-			sb.append("; ");
-		}
-		sb.append("]");
-		return sb.toString();
-	}
+        sb.append(" ### output: ");
+        sb.append(output.toString());
+        sb.append("]");
+        return sb.toString();
+    }
 
-	static Comparator<Individual> getFitnessComparator(List<Objective> objectives){
-		return (i1, i2) ->
-				Double.compare(i2.getFitness(objectives), i1.getFitness(objectives));
-	}
-	
+    static <T> Comparator<Individual<T>> getFitnessComparator(List<Objective<T>> objectives) {
+        return (i1, i2) ->
+                Double.compare(i2.getFitness(objectives), i1.getFitness(objectives));
+    }
+
 }

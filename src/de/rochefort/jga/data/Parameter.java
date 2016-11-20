@@ -30,7 +30,7 @@ public class Parameter {
 		this(bitCount, min, max);
 		this.name = name;
 	}
-	
+
 	public int getIndex() {
 		return index;
 	}

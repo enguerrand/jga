@@ -7,7 +7,7 @@ import de.rochefort.jga.data.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PointCrossOver extends CrossOverAlgorithm {
+public class PointCrossOver<T> extends CrossOverAlgorithm<T> {
 	public static final CrossOverType DEFAULT_CROSS_OVER_TYPE = CrossOverType.DUAL;
 	public static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.7;
 
@@ -36,8 +36,8 @@ public class PointCrossOver extends CrossOverAlgorithm {
 	}
 
 	@Override
-	public List<Individual> crossover(Individual parentA, Individual parentB) {
-		List<Parameter> parameters = parentA.getParameters();
+	public List<Individual<T>> crossover(Individual<T> parentA, Individual<T> parentB) {
+		final List<Parameter> parameters = parentA.getParameters();
 		boolean[] offspringAGenes = parentA.encode();
 		boolean[] offspringBGenes = parentB.encode();
 
@@ -57,9 +57,9 @@ public class PointCrossOver extends CrossOverAlgorithm {
 				}
 			}
 		}
-		List<Individual> offspring = new ArrayList<>(2);
-		offspring.add(new Individual(parameters, offspringAGenes));
-		offspring.add(new Individual(parameters, offspringBGenes));
+		final List<Individual<T>> offspring = new ArrayList<>(2);
+		offspring.add(new Individual<>(parameters, offspringAGenes));
+		offspring.add(new Individual<>(parameters, offspringBGenes));
 		return offspring;
 	}
 

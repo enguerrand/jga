@@ -6,7 +6,7 @@ import de.rochefort.jga.data.Individual;
 
 import java.util.List;
 
-public class LinearDynamicMutation extends MutationAlgorithm {
+public class LinearDynamicMutation<T> extends MutationAlgorithm<T> {
 	private final double initialMutationProbability;
 	private final double finalMutationProbability;
 	private final double mutationProbabilityGradient;
@@ -28,9 +28,9 @@ public class LinearDynamicMutation extends MutationAlgorithm {
 	}
 	
 	@Override
-	public void mutate(List<Individual> individuals, Generation generation) {
+	public void mutate(List<Individual<T>> individuals, Generation<T> generation) {
 		double mutationProbability = getCurrentMutationProbability(generation.getIndex());
-		for (Individual individual : individuals) {
+		for (Individual<T> individual : individuals) {
 			boolean[] bits = individual.encode();
 			for (int index = 0; index < bits.length; index++) {
 				if (GeneticAlgorithm.RANDOM.nextDouble() < mutationProbability) {

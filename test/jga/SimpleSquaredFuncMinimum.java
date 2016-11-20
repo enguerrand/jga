@@ -17,7 +17,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class SimpleSquaredFuncMinimum {
-	private static final String OUTPUT_NAME = "SQUARED";
 	private static final String OUT_FILE_NAME = "/tmp/ga.out.txt";
 	private static final int POOL_SIZE = 20;
 	private static final int GENERATION_COUNT_SLOW = 50;
@@ -27,7 +26,7 @@ public class SimpleSquaredFuncMinimum {
 	private static final double MUTATION_PROBABILITY = 0.005;
 	private static final int BIT_COUNT = 48;
 	private SimpleSquaredFuncMinimum(boolean simulateLongTask) {
-		Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction = params -> {
+        Function<Map<Parameter, Double>, Double> evaluationFunction = params -> {
             if(simulateLongTask){
                 try {
                     // Test parallel execution of long running jobs
@@ -36,27 +35,28 @@ public class SimpleSquaredFuncMinimum {
                     e.printStackTrace();
                 }
             }
-            Double value = params.entrySet().iterator().next().getValue();
-            return Collections.singletonMap(OUTPUT_NAME, Math.pow(value, 2));
+            final Double value = params.entrySet().iterator().next().getValue();
+            return Math.pow(value, 2);
         };
-		Objective obj = new Objective() {
-			@Override
-			public double computeFitness(Individual individual) {
-				return 1 - individual.getOutputValue(OUTPUT_NAME) / 100;
-			}
-		};
+        final Objective<Double> obj = new Objective<Double>() {
+            @Override
+            public double computeFitness(Individual<Double> individual) {
+                return 1 - individual.getOutput() / 100;
+            }
+        };
 
-        Parameter x = new Parameter(BIT_COUNT);
+        final Parameter x = new Parameter(BIT_COUNT);
         x.setMin(-10);
         x.setMax(10);
-		List<Objective> objectives = Collections.singletonList(obj);
-		final GeneticAlgorithm ga = new GeneticAlgorithm(
-				POOL_SIZE, 
-				simulateLongTask ? GENERATION_COUNT_SLOW : GENERATION_COUNT_FAST,
-				g -> {},
-				Collections.singleton(x),
-				evaluationFunction,
-				SimpleTournamentSelection.newSimpleTournamentSelection(objectives, SELECTION_PRESSURE),
+        final List<Objective<Double>> objectives = Collections.singletonList(obj);
+        final GeneticAlgorithm<Double> ga = new GeneticAlgorithm<>(
+                POOL_SIZE,
+                simulateLongTask ? GENERATION_COUNT_SLOW : GENERATION_COUNT_FAST,
+                g -> {
+                },
+                Collections.singleton(x),
+                evaluationFunction,
+                SimpleTournamentSelection.newSimpleTournamentSelection(objectives, SELECTION_PRESSURE),
 				PointCrossOver.newPointCrossOverAlgorithm(CROSS_OVER_PROBABILITY, CrossOverType.SINGLE),
 				MutationAlgorithm.newSimpleMutation(MUTATION_PROBABILITY));
 //		try {

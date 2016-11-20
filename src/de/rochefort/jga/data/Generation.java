@@ -20,10 +20,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class Generation {
-	private final List<Individual> individuals;
+public class Generation<T> {
+	private final List<Individual<T>> individuals;
 	private final long index;
-	private Generation(long index, List<Individual> individuals) {
+
+	private Generation(long index, List<Individual<T>> individuals) {
 		this.index = index;
 		this.individuals = new ArrayList<>(individuals.size());
 		this.individuals.addAll(individuals);
@@ -32,26 +33,26 @@ public class Generation {
 	public Generation(int poolSize, List<Parameter> parameters){
 		this(1L, createRandomPool(poolSize, parameters));
 	}
-	
-	public Generation(Generation parentGeneration, SelectionAlgorithm selector, CrossOverAlgorithm crosser, MutationAlgorithm mutator){
+
+	public Generation(Generation<T> parentGeneration, SelectionAlgorithm<T> selector, CrossOverAlgorithm<T> crosser, MutationAlgorithm<T> mutator) {
 		this(parentGeneration.getIndex()+1, parentGeneration.createOffspring(selector, crosser, mutator));
 	}
 	
 	public long getIndex() {
 		return index;
 	}
-	
-	private List<Individual> createOffspring(SelectionAlgorithm selector, CrossOverAlgorithm crosser, MutationAlgorithm mutator){
-		List<Individual> offspring = new ArrayList<>(this.individuals.size());
+
+	private List<Individual<T>> createOffspring(SelectionAlgorithm<T> selector, CrossOverAlgorithm<T> crosser, MutationAlgorithm<T> mutator) {
+		final List<Individual<T>> offspring = new ArrayList<>(this.individuals.size());
 		while(offspring.size() < this.individuals.size()){
-			Collection<Individual> selection = selector.selectIndividuals(this, 2);
+			Collection<Individual<T>> selection = selector.selectIndividuals(this, 2);
 			if(selection.size() < 2){
 				throw new RuntimeException("Too few individuals selected!");
 			}
-			Iterator<Individual> it = selection.iterator();
-			List<Individual> children = crosser.crossover(it.next(), it.next());
+			final Iterator<Individual<T>> it = selection.iterator();
+			final List<Individual<T>> children = crosser.crossover(it.next(), it.next());
 			mutator.mutate(children, this);
-			for(Individual individual : children){
+			for (Individual<T> individual : children) {
 				if(offspring.size() >= this.individuals.size()){
 					break;
 				}
@@ -60,29 +61,29 @@ public class Generation {
 		}
 		return offspring;
 	}
-	
-	private static List<Individual> createRandomPool(int size, List<Parameter> parameters){
-		List<Individual> pool = new ArrayList<>(size);
+
+	private static <T> List<Individual<T>> createRandomPool(int size, List<Parameter> parameters) {
+		List<Individual<T>> pool = new ArrayList<>(size);
 		parameters.sort(Parameter.INDEX_COMPARATOR);
 		while(pool.size() < size){
 			Map<Parameter, Double> values = new HashMap<>();
 			for(Parameter p : parameters){
 				values.put(p, p.randomValue());
 			}
-			pool.add(new Individual(values));
+			pool.add(new Individual<>(values));
 		}
 		return pool;
 	}
-	
-	public void evaluate(Consumer<Generation> preparer, Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction){
+
+	public void evaluate(Consumer<Generation<T>> preparer, Function<Map<Parameter, Double>, T> evaluationFunction) {
 		preparer.accept(this);
-		
-		for(Individual individual : this.individuals){
+
+		for (Individual<T> individual : this.individuals) {
 			individual.evaluate(evaluationFunction);
 		}
 	}
-	
-	public void evaluate(Consumer<Generation> preparer, Function<Map<Parameter, Double>, Map<String, Double>> evaluationFunction, ExecutorService executor) throws InterruptedException, ExecutionException{
+
+	public void evaluate(Consumer<Generation<T>> preparer, Function<Map<Parameter, Double>, T> evaluationFunction, ExecutorService executor) throws InterruptedException, ExecutionException {
 		preparer.accept(this);
 		List<Future<?>> jobs = this.individuals.stream()
 				.map(individual -> executor.submit(
@@ -93,48 +94,48 @@ public class Generation {
 	}
 	
 	//TODO Implement multithreaded evaluation
-	
-	public double getFitnessSum(List<Objective> objectives) {
+
+	public double getFitnessSum(List<Objective<T>> objectives) {
 		double fitnessSum = 0;
-        for (Individual individual : this.individuals) {
-            fitnessSum = fitnessSum + individual.getFitness(objectives);
-        }
+		for (Individual<T> individual : this.individuals) {
+			fitnessSum = fitnessSum + individual.getFitness(objectives);
+		}
 		return fitnessSum;
 	}
-	
-	public double getMeanFitness(List<Objective> objectives){
-        return getFitnessSum(objectives) / individuals.size();
-    }
 
-	public double getHighestFitness(List<Objective> objectives) {
+	public double getMeanFitness(List<Objective<T>> objectives) {
+		return getFitnessSum(objectives) / individuals.size();
+	}
+
+	public double getHighestFitness(List<Objective<T>> objectives) {
 		return getIndividualsSortedByFitness(objectives).get(0).getFitness(objectives);
 	}
-	
-	public Generation deepCopy(){
-        return new Generation(this.index, this.individuals);
+
+	public Generation<T> deepCopy() {
+		return new Generation<>(this.index, this.individuals);
 	}
 	
 	public int getIndividualsCount(){
 		return this.individuals.size();
 	}
-	
-	public List<Individual> getIndividuals(){
-		List<Individual> list = new ArrayList<>();
+
+	public List<Individual<T>> getIndividuals() {
+		List<Individual<T>> list = new ArrayList<>();
 		list.addAll(individuals);
 		return list;
 	}
 
-	public List<Individual> getIndividualsSortedByFitness(List<Objective> objectives){
-		List<Individual> list = getIndividuals();
+	public List<Individual<T>> getIndividualsSortedByFitness(List<Objective<T>> objectives) {
+		List<Individual<T>> list = getIndividuals();
 		list.sort(Individual.getFitnessComparator(objectives));
 		return list;
 	}
-	
-	public Individual getIndividual(int index){
+
+	public Individual<T> getIndividual(int index) {
 		return individuals.get(index);
 	}
-	
-	public void print(List<Objective> objectives, PrintStream stream, OutputVerbosity verbosity){
+
+	public void print(List<Objective<T>> objectives, PrintStream stream, OutputVerbosity verbosity) {
 		if(verbosity == OutputVerbosity.NONE){
 			return;
 		}
@@ -145,11 +146,11 @@ public class Generation {
 		if(printPadding)
 		    stream.println("##########################################################");
         if(verbosity.getLevel() > OutputVerbosity.GENERATION_SUMMARY.getLevel()) {
-            for (Individual i : individuals) {
-                double fitness = i.getFitness(objectives);
-                String fitnessString = "Fitness: " + String.valueOf(fitness);
-                switch (verbosity) {
-                    case INDIVIUALS_SUMMARY:
+			for (Individual<T> i : individuals) {
+				double fitness = i.getFitness(objectives);
+				final String fitnessString = "Fitness: " + String.valueOf(fitness);
+				switch (verbosity) {
+					case INDIVIUALS_SUMMARY:
                         stream.println(fitnessString);
                         break;
                     case FULL:
